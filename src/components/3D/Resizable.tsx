@@ -9,6 +9,7 @@ const Resizeable = ({ children }) => {
   const handler: React.MouseEventHandler<HTMLDivElement> = (
     e: React.MouseEvent
   ) => {
+    e.preventDefault()
     e.stopPropagation()
 
     const onMouseMove = (e: MouseEvent) => {
