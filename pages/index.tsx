@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import Layout from 'components/Layout'
-import Resizable from 'components/generic/Resizable'
+
+import Resizable from 'components/3D/Resizable'
+import { SplitView } from 'components/3D/SplitView'
 import { Flex, Spacer } from '@chakra-ui/react'
 
 const IndexPage = () => (
@@ -11,7 +13,14 @@ const IndexPage = () => (
         <Flex>Hello</Flex>{' '}
       </Resizable>
     </Flex>
-    <Flex padding="24" width="container.xl"></Flex>
+    {/* <div className="App">
+      <div>
+        <SplitView
+          left={<div style={{ margin: '1rem' }}>Left item</div>}
+          right={<div style={{ margin: '1rem' }}>Right item</div>}
+        />
+      </div>
+    </div> */}
   </Layout>
 )
 

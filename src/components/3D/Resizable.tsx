@@ -1,28 +1,50 @@
 import { Box, Flex } from '@chakra-ui/layout'
 import * as React from 'react'
-import { useRef, useState, useCallback } from 'react'
+import { useRef, useState } from 'react'
 
-const Resize = ({ children }) => {
+const Resizeable = ({ children }) => {
   const ref = useRef<HTMLDivElement>()
   const [boxWidth, setBoxWidth] = useState(60)
 
-  const handler = useCallback(() => {
-    function onMouseMove(e) {
-      console.log(e.offsetX)
+  const handler: React.MouseEventHandler<HTMLDivElement> = (
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation()
 
-      if (e.offsetX - boxWidth > 40) {
-        setBoxWidth(e.offsetX)
+    const onMouseMove = (e: MouseEvent) => {
+      e.stopPropagation()
+      const offset = e.offsetX
+      if (offset < 8) {
+        return
+      } else {
+        setBoxWidth(prev => {
+          const left = offset < prev
+          if (left) {
+            if (prev - offset > 45) {
+              return prev - 40
+            }
+            return prev
+          } else {
+            if (offset - prev > 45) {
+              return prev + 40
+            } else if (offset < 61) {
+              return 60
+            }
+            return prev
+          }
+        })
       }
     }
     function onMouseUp() {
+      e.stopPropagation()
+
       ref.current.removeEventListener('mousemove', onMouseMove)
       ref.current.removeEventListener('mouseup', onMouseUp)
     }
     ref.current.addEventListener('mousemove', onMouseMove)
     ref.current.addEventListener('mouseup', onMouseUp)
-  }, [])
+  }
 
-  console.log('render', boxWidth, ref.current)
   return (
     <Flex ref={ref} width="350px" height="30px" background="khaki">
       <Box width={`${boxWidth}px`} background="black" pointerEvents="none">
@@ -38,4 +60,4 @@ const Resize = ({ children }) => {
     </Flex>
   )
 }
-export default Resize
+export default Resizeable
