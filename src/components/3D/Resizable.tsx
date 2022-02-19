@@ -1,62 +1,55 @@
 import { Box, Flex } from '@chakra-ui/layout';
-import * as React from 'react';
-import { useRef, useState } from 'react';
+import React, {
+  forwardRef,
+  MouseEvent,
+  MouseEventHandler,
+  ReactNode,
+  useRef,
+  useState,
+} from 'react';
 
-const Resizeable = ({ children }) => {
-  const ref = useRef<HTMLDivElement>();
+type ResizeableProps = {
+  children: ReactNode;
+  onResize?: (e: MouseEvent, slot: number) => void;
+  slot: number;
+  gridColumnStart: string;
+  gridColumnEnd: string;
+};
+const Resizeable = (props: ResizeableProps) => {
+  // const ref = useRef<HTMLDivElement>();
   const [boxWidth, setBoxWidth] = useState(60);
 
-  const handler: React.MouseEventHandler<HTMLDivElement> = (
-    e: React.MouseEvent
-  ) => {
-    e.preventDefault();
-    e.stopPropagation();
-    let a = 1;
-
-    const onMouseMove = (e: MouseEvent) => {
-      e.stopPropagation();
-      const offset = e.offsetX;
-      if (offset < 8) {
-        return;
-      } else {
-        setBoxWidth(prev => {
-          const left = offset < prev;
-          if (left) {
-            if (prev - offset > 45) {
-              return prev - 40;
-            }
-            return prev;
-          } else {
-            if (offset - prev > 45) {
-              return prev + 40;
-            } else if (offset < 61) {
-              return 60;
-            }
-            return prev;
-          }
-        });
-      }
-    };
-    function onMouseUp() {
-      e.stopPropagation();
-
-      ref.current.removeEventListener('mousemove', onMouseMove);
-      ref.current.removeEventListener('mouseup', onMouseUp);
-    }
-    ref.current.addEventListener('mousemove', onMouseMove);
-    ref.current.addEventListener('mouseup', onMouseUp);
-  };
+  const { children, onResize, slot, gridColumnStart, gridColumnEnd } = props;
 
   return (
-    <Flex ref={ref} width="350px" height="30px" background="khaki">
-      <Box width={`${boxWidth}px`} background="black" pointerEvents="none">
-        {children}
-      </Box>
-      <Box
+    <Flex
+      position="relative"
+      gridColumn={`${gridColumnStart} / ${gridColumnEnd}`}
+      // justifySelf="end"
+
+      // ref={ref}
+      // width="600px"
+      // height="30px"
+      // background="khaki"
+      // justifyContent="center"
+    >
+      {/* <Box
         width="8px"
         height="30px"
         background="WindowFrame"
-        onMouseDown={handler}
+        onMouseDown={leftHandler}
+        css={{ cursor: 'e-resize' }}
+      /> */}
+      {/* <Box pointerEvents="none" width="100%"> */}
+      {children}
+      {/* </Box> */}
+      <Box
+        position="absolute"
+        right="0"
+        width="6px"
+        height="100%"
+        background="black"
+        onMouseDown={e => onResize(e, slot)}
         css={{ cursor: 'e-resize' }}
       />
     </Flex>
