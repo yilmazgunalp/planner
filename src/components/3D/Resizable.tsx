@@ -10,7 +10,8 @@ import React, {
 
 type ResizeableProps = {
   children: ReactNode;
-  onResize?: (e: MouseEvent, slot: number) => void;
+  onRightResize?: (e: MouseEvent, slot: number) => void;
+  onLeftResize?: (e: MouseEvent, slot: number) => void;
   slot: number;
   gridColumnStart: string;
   gridColumnEnd: string;
@@ -19,7 +20,14 @@ const Resizeable = (props: ResizeableProps) => {
   // const ref = useRef<HTMLDivElement>();
   const [boxWidth, setBoxWidth] = useState(60);
 
-  const { children, onResize, slot, gridColumnStart, gridColumnEnd } = props;
+  const {
+    children,
+    onRightResize,
+    onLeftResize,
+    slot,
+    gridColumnStart,
+    gridColumnEnd,
+  } = props;
 
   return (
     <Flex
@@ -33,13 +41,18 @@ const Resizeable = (props: ResizeableProps) => {
       // background="khaki"
       // justifyContent="center"
     >
-      {/* <Box
-        width="8px"
-        height="30px"
-        background="WindowFrame"
-        onMouseDown={leftHandler}
-        css={{ cursor: 'e-resize' }}
-      /> */}
+      {/* {slot === 5 && (
+        <Box
+          position="absolute"
+          left="0"
+          width="6px"
+          height="100%"
+          background="brown"
+          data-index={slot}
+          onMouseDown={e => onLeftResize(e, slot)}
+          css={{ cursor: 'w-resize' }}
+        />
+      )} */}
       {/* <Box pointerEvents="none" width="100%"> */}
       {children}
       {/* </Box> */}
@@ -49,7 +62,8 @@ const Resizeable = (props: ResizeableProps) => {
         width="6px"
         height="100%"
         background="black"
-        onMouseDown={e => onResize(e, slot)}
+        data-index={slot}
+        onMouseDown={e => onRightResize(e, slot)}
         css={{ cursor: 'e-resize' }}
       />
     </Flex>

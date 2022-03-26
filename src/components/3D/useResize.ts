@@ -1,45 +1,34 @@
 import { MutableRefObject, useState, useCallback } from 'react';
 
 export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
-  const [mousePosition, setMousePosition] = useState(0);
-  // REthink this slot slot can be determined from start no need to read e.target
+  const [move, setMove] = useState(0);
   const [slot, setSlot] = useState<string>();
+  const [initialSlot, setInitalSlot] = useState<number>();
+  const [leftOrRight, setLeftOrRight] = useState<'left' | 'right'>();
 
   const rightHandler = useCallback((e: React.MouseEvent, slot: number) => {
     e.preventDefault();
     e.stopPropagation();
-
+    setInitalSlot(slot);
     const onMouseMove = (e: MouseEvent) => {
-      e.stopPropagation();
-      console.log(e.offsetX, e.target);
-      setMousePosition(e.offsetX);
+      // 1.calculate leftOrRigth
+      // this will be different in left handler
+      const isToRight =
+        e.target.dataset.index && +e.target.dataset.index > slot;
+      // TODO if index is not present will be false which is not quite right
+      setLeftOrRight(isToRight ? 'right' : 'left');
 
-      setSlot(prev => e.target.getAttribute('data-index') || prev);
-      if (e.target.getAttribute('data-filled') === 'true') {
+      // 2.calculate move
+      const move = isToRight
+        ? Math.floor(e.offsetX / 25)
+        : Math.floor(
+            -(e.target.offsetWidth / 25 - Math.floor(e.offsetX / 25) - 1)
+          );
+      setMove(move);
+      setSlot(e.target.getAttribute('data-index'));
+      if ((isToRight && e.target.dataset.filled === 'true') || move === -3) {
         onMouseUp();
       }
-      // const offset = e.offsetX;
-      // if (offset < 8) {
-      //   return;
-      // } else {
-      //   setBoxWidth(prev => {
-      //     const left = offset < prev;
-      //     if (left) {
-      //       if (prev - offset > 45) {
-      //         return prev - 40;
-      //       }
-      //       return prev;
-      //     } else {
-      //       if (offset - (300 + prev / 2) > 45) {
-      //         console.log('yeh', prev);
-      //         return prev + 40;
-      //       } else if (offset < 61) {
-      //         return 60;
-      //       }
-      //       return prev;
-      //     }
-      //   });
-      // }
     };
     function onMouseUp() {
       e.stopPropagation();
@@ -54,5 +43,46 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
     document.addEventListener('mouseup', onMouseUp);
   }, []);
 
-  return [mousePosition, slot, rightHandler] as const;
+  const leftHandler = useCallback((e: MouseEvent, slot: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setLeftOrRight('left');
+    setInitalSlot(slot);
+    const onMouseMove = (e: MouseEvent) => {
+      e.stopPropagation();
+      console.log('slot', slot, e.offsetX, e.target);
+      setSlot(prev => e.target.dataset.index || prev);
+      setMove(
+        prev =>
+          (slot - +e.target.dataset.index - 1) * 4 +
+          4 -
+          Math.floor(e.offsetX / 25)
+      );
+
+      // console.log('slot', e.target.getAttribute('data-index'));
+      if (e.target.dataset.filled === 'true') {
+        onMouseUp();
+      }
+    };
+    function onMouseUp() {
+      e.stopPropagation();
+      if (ref) {
+        ref.current.removeEventListener('mousemove', onMouseMove);
+        ref.current.removeEventListener('mouseup', onMouseUp);
+        document.removeEventListener('mouseup', onMouseUp);
+      }
+    }
+    ref.current.addEventListener('mousemove', onMouseMove);
+    ref.current.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('mouseup', onMouseUp);
+  }, []);
+
+  return [
+    move,
+    slot,
+    rightHandler,
+    leftHandler,
+    initialSlot,
+    leftOrRight,
+  ] as const;
 };
