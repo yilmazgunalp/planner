@@ -14,7 +14,7 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
       // 1.calculate leftOrRigth
       // this will be different in left handler
       const isToRight =
-        e.target.dataset.index && +e.target.dataset.index > slot;
+        e.target.dataset.index !== undefined && +e.target.dataset.index > slot;
       // TODO if index is not present will be false which is not quite right
       setLeftOrRight(isToRight ? 'right' : 'left');
 

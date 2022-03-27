@@ -19,8 +19,8 @@ type Slots = Slot[] | [];
 export const Day = ({ children }: DayProps) => {
   const [slots, setSlots] = useState<Slots>([
     { gridColumnStart: '1', gridColumnEnd: '5' },
-    { gridColumnStart: '5', gridColumnEnd: '9', filled: true },
-    { gridColumnStart: '9', gridColumnEnd: '13' },
+    { gridColumnStart: '5', gridColumnEnd: '9' },
+    { gridColumnStart: '9', gridColumnEnd: '13', filled: true },
     { gridColumnStart: '13', gridColumnEnd: '17' },
     { gridColumnStart: '17', gridColumnEnd: '21' },
 
@@ -31,7 +31,7 @@ export const Day = ({ children }: DayProps) => {
     useResize(ref);
 
   useEffect(() => {
-    if (slot && initialSlot) {
+    if (slot !== undefined && initialSlot !== undefined) {
       setSlots(updateSlots(move, +slot, slots, initialSlot, leftOrRight));
     }
   }, [move, slot]);
