@@ -7,7 +7,7 @@ import { Flex, Spacer, Text } from '@chakra-ui/react';
 import { Day, TwoHourSlot } from 'components/Day';
 
 const IndexPage = () => (
-  <Layout title="Home | Next.js + TypeScript Example">
+  <Layout title="School Holidays Planner">
     <h1>Hello Next.js 👋</h1>
     <Flex padding="24" width="container.xl">
       <Resizable>
