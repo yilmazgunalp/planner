@@ -41,7 +41,7 @@ const Resizeable = (props: ResizeableProps) => {
       // background="khaki"
       // justifyContent="center"
     >
-      {
+      {gridColumnEnd === '25' && (
         <Box
           position="absolute"
           left="0"
@@ -52,7 +52,7 @@ const Resizeable = (props: ResizeableProps) => {
           onMouseDown={e => onLeftResize(e, slot)}
           css={{ cursor: 'w-resize' }}
         />
-      }
+      )}
       {/* <Box pointerEvents="none" width="100%"> */}
       {children}
       {/* </Box> */}

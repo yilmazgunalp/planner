@@ -35,7 +35,6 @@ export const Day = ({ children }: DayProps) => {
       setSlots(updateSlots(move, +slot, slots, initialSlot, leftOrRight));
     }
   }, [move, slot]);
-  console.log('slots', slots);
   return (
     <div className={styles.day} ref={ref}>
       {slots.map((slot, index) => (
@@ -175,9 +174,10 @@ const updateSlots = (
         return acc;
       }, []) as any;
       // get the begining and ending
-      console.log('slots reversed', reversed);
-
-      const ending = reversed.slice(0, slots.length - 1 - slot);
+      const ending =
+        leftOrRight === 'right'
+          ? reversed.slice(0, slots.length - 1 - slot)
+          : reversed.slice(0, slots.length - 1 - slot - 1);
       const nextFilledItemIndex = reversed
         .slice(slots.length - 1 - initialSlot + 1)
         .findIndex(e => e.filled);
@@ -191,46 +191,28 @@ const updateSlots = (
           ? []
           : slots.slice(0, previousFilledItemIndex + 1);
 
-      console.log(
-        'left-resize-bug',
-        'begining ending',
-        initialSlot,
-        slot,
-        begining,
-        ending
-      );
-
-      console.log(
-        'left-resize-bug',
-        'nextFilledItemIndex',
-        nextFilledItemIndex
-      );
       // limit to resize
       // TODO move to helper function
       let limit = begining.length
         ? +begining[begining.length - 1].gridColumnEnd
         : 1;
 
-      console.log('left-resize-bug', 'limit', limit, leftOrRight);
-
       // calculate the new end
       const result = [];
-      const resized = reversed[slots.length - 1 - slot];
-      console.log('left-resize-bug', 'resized', resized, leftOrRight);
+      const resized =
+        leftOrRight === 'right'
+          ? reversed[slots.length - 1 - slot]
+          : reversed[slots.length - 1 - slot - 1];
 
       let newStart = +resized.gridColumnStart - move;
       let start = newStart >= limit ? newStart : undefined;
 
       // start might be undefined because of crazy mouse events.
       // if so just dont do anything
-
-      console.log('left-resize-bug', 'start', start, leftOrRight);
-
       if (start) {
         const resizedSlot = resizeSlot(start, +resized.gridColumnEnd);
         result.push(resizedSlot);
         const refilledSlots = refillWithSlots(limit, start);
-        console.log('left-resize-bug', 'refilledSlots', refilledSlots);
 
         return begining.concat(refilledSlots, result, ending.reverse());
       } else {

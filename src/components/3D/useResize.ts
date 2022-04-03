@@ -12,7 +12,6 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
     setInitalSlot(slot);
     const onMouseMove = (e: MouseEvent) => {
       // 1.calculate leftOrRight
-      // this will be different in left handler
       const isToRight =
         e.target.dataset.index !== undefined && +e.target.dataset.index > slot;
       // TODO if index is not present will be false which is not quite right
@@ -49,18 +48,25 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
     e.stopPropagation();
     setInitalSlot(slot);
     const onMouseMove = (e: MouseEvent) => {
-      // console.log('left-handler', slot, e.target);
       // 1.calculate leftOrRight
       const isToLeft =
         e.target.dataset.index !== undefined && +e.target.dataset.index < slot;
       // TODO if index is not present will be false which is not quite right
       setLeftOrRight(isToLeft ? 'left' : 'right');
 
+      const leftMove =
+        e.target.offsetWidth > 25
+          ? Math.floor(
+              e.target.offsetWidth / 25 - Math.floor(e.offsetX / 25) - 1
+            )
+          : // this is to register a move on borders between two slots
+          e.offsetX < 7
+          ? 1
+          : 0;
+
       // 2.calculate move
-      const move = isToLeft
-        ? Math.floor(e.target.offsetWidth / 25 - Math.floor(e.offsetX / 25) - 1)
-        : -Math.floor(e.offsetX / 25);
-      // console.log('move', e.offsetX, move, e.target);
+      const move = isToLeft ? leftMove : -Math.floor(e.offsetX / 25);
+
       setMove(move);
       setSlot(e.target.getAttribute('data-index'));
 
@@ -69,7 +75,6 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
         (isToLeft && e.target.dataset.filled === 'true') ||
         (e.target.dataset.filled === 'true' && e.target.offsetWidth === 25)
       ) {
-        // console.log('move remove', move);
         onMouseUp();
       }
     };
