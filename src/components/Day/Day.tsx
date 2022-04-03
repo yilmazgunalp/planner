@@ -19,8 +19,8 @@ type Slots = Slot[] | [];
 export const Day = ({ children }: DayProps) => {
   const [slots, setSlots] = useState<Slots>([
     { gridColumnStart: '1', gridColumnEnd: '5' },
-    { gridColumnStart: '5', gridColumnEnd: '9' },
-    { gridColumnStart: '9', gridColumnEnd: '13', filled: true },
+    { gridColumnStart: '5', gridColumnEnd: '9', filled: true },
+    { gridColumnStart: '9', gridColumnEnd: '13' },
     { gridColumnStart: '13', gridColumnEnd: '17' },
     { gridColumnStart: '17', gridColumnEnd: '21' },
 
@@ -35,7 +35,7 @@ export const Day = ({ children }: DayProps) => {
       setSlots(updateSlots(move, +slot, slots, initialSlot, leftOrRight));
     }
   }, [move, slot]);
-
+  console.log('slots', slots);
   return (
     <div className={styles.day} ref={ref}>
       {slots.map((slot, index) => (
@@ -83,13 +83,36 @@ const refillWithSlots = (start: number, limit: number): Slots => {
   return result;
 };
 
-const getBeginingandEnding = (slots: Slots, slot: number): Slot[][] => {
+const getBeginingAndEndingForRightHandler = (
+  slots: Slots,
+  slot: number
+): Slot[][] => {
   const begining = slots.slice(0, slot);
   const nextFilledItemIndex = slots.slice(slot + 1).findIndex(e => e.filled);
   const ending =
     nextFilledItemIndex === -1
       ? []
       : slots.slice(nextFilledItemIndex + slot + 1);
+
+  return [begining, ending];
+};
+const getBeginingAndEndingForLeftHandler = (
+  slots: Slots,
+  slot: number
+): Slot[][] => {
+  const nextFilledItemIndex = slots.slice(slot + 1).findIndex(e => e.filled);
+  const ending =
+    nextFilledItemIndex === -1
+      ? []
+      : slots.slice(nextFilledItemIndex + slot + 1);
+  const previousFilledItemIndex = slots
+    .map(e => e.filled)
+    .slice(0, slot)
+    .lastIndexOf(true);
+  const begining =
+    previousFilledItemIndex === -1
+      ? []
+      : slots.slice(0, previousFilledItemIndex + 1);
 
   return [begining, ending];
 };
@@ -102,10 +125,13 @@ const updateSlots = (
   leftOrRight: 'left' | 'right'
 ): Slots => {
   //TODO figure out if logic for righthandler vs lefthandler
-  if (true) {
+  if (false) {
     if (move !== 0) {
       // get the begining and ending
-      const [begining, ending] = getBeginingandEnding(slots, initialSlot);
+      const [begining, ending] = getBeginingAndEndingForRightHandler(
+        slots,
+        initialSlot
+      );
 
       // get the next full slot's index
       const nextFilledItemIndex = slots
@@ -126,6 +152,7 @@ const updateSlots = (
             ? 25
             : +slots[nextFilledItemIndex + slot + 1].gridColumnStart;
       }
+      // calculate the new end
       const result = [];
       const resized = slots[initialSlot];
       const newEnd = move + +resized.gridColumnEnd;
@@ -142,77 +169,73 @@ const updateSlots = (
       }
     }
   } else {
-    const toLeft = slot < initialSlot;
-    console.log('toLeft', toLeft);
-    console.log('move', move);
-    if (!toLeft) return slots;
-    if (move > 0) {
-      // get the slots after the resized slot
-      const ending = slots.slice(initialSlot + 1);
-      console.log('ending', slot, ending);
-      // get the previous full slot's index
+    if (move !== 0) {
+      const reversed = slots.reduceRight((acc, cur) => {
+        acc.push(cur);
+        return acc;
+      }, []) as any;
+      // get the begining and ending
+      console.log('slots reversed', reversed);
+
+      const ending = reversed.slice(0, slots.length - 1 - slot);
+      const nextFilledItemIndex = reversed
+        .slice(slots.length - 1 - initialSlot + 1)
+        .findIndex(e => e.filled);
       const previousFilledItemIndex = slots
         .map(e => e.filled)
-        .slice(0, slot + 1)
+        .slice(0, slot)
         .lastIndexOf(true);
-      console.log('previousfilled', previousFilledItemIndex);
-      // limit to resize
-      const initialSlotIsFilled = previousFilledItemIndex === initialSlot;
-      const limit =
-        previousFilledItemIndex === -1
-          ? 1
-          : initialSlotIsFilled
-          ? +slots[initialSlot].gridColumnStart + 1
-          : +slots[previousFilledItemIndex].gridColumnEnd;
-      console.log('limit', limit);
-      // get the slots before the previousfilled(including) slot
+
       const begining =
-        limit === 1
+        nextFilledItemIndex === -1
           ? []
-          : slots.slice(
-              0,
-              initialSlotIsFilled ? initialSlot : previousFilledItemIndex + 1
-            );
-      console.log('beginning', begining);
-      // resize the selected
+          : slots.slice(0, previousFilledItemIndex + 1);
+
+      console.log(
+        'left-resize-bug',
+        'begining ending',
+        initialSlot,
+        slot,
+        begining,
+        ending
+      );
+
+      console.log(
+        'left-resize-bug',
+        'nextFilledItemIndex',
+        nextFilledItemIndex
+      );
+      // limit to resize
+      // TODO move to helper function
+      let limit = begining.length
+        ? +begining[begining.length - 1].gridColumnEnd
+        : 1;
+
+      console.log('left-resize-bug', 'limit', limit, leftOrRight);
+
+      // calculate the new end
       const result = [];
-      // console.log('here', slot, slots, move, initialSlot);
-      const resized = { ...slots[initialSlot] };
+      const resized = reversed[slots.length - 1 - slot];
+      console.log('left-resize-bug', 'resized', resized, leftOrRight);
 
       let newStart = +resized.gridColumnStart - move;
-
       let start = newStart >= limit ? newStart : undefined;
-      start && (resized.gridColumnStart = start.toString());
-      console.log('here', resized, slot);
-      let inComplete = true;
-      let limitStart = limit;
-      while (start && inComplete) {
-        console.log('while', limitStart);
-        if (start === limitStart) break;
-        if (limitStart + 4 <= start) {
-          console.log('while2');
 
-          result.push({
-            gridColumnStart: limitStart.toString(),
-            gridColumnEnd: (limitStart + 4).toString(),
-          });
-          limitStart += 4;
-          continue;
-        } else if (limitStart < start) {
-          console.log('while3');
+      // start might be undefined because of crazy mouse events.
+      // if so just dont do anything
 
-          result.push({
-            gridColumnStart: limitStart.toString(),
-            gridColumnEnd: start.toString(),
-          });
-          inComplete = false;
-        }
-        console.log('while4');
+      console.log('left-resize-bug', 'start', start, leftOrRight);
+
+      if (start) {
+        const resizedSlot = resizeSlot(start, +resized.gridColumnEnd);
+        result.push(resizedSlot);
+        const refilledSlots = refillWithSlots(limit, start);
+        console.log('left-resize-bug', 'refilledSlots', refilledSlots);
+
+        return begining.concat(refilledSlots, result, ending.reverse());
+      } else {
+        return slots;
       }
-      console.log('outside while', result);
-      result.push(resized);
-
-      return begining.concat(result, ending);
     }
   }
   return slots;

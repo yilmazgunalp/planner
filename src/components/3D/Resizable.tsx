@@ -41,7 +41,7 @@ const Resizeable = (props: ResizeableProps) => {
       // background="khaki"
       // justifyContent="center"
     >
-      {/* {slot === 5 && (
+      {
         <Box
           position="absolute"
           left="0"
@@ -52,11 +52,11 @@ const Resizeable = (props: ResizeableProps) => {
           onMouseDown={e => onLeftResize(e, slot)}
           css={{ cursor: 'w-resize' }}
         />
-      )} */}
+      }
       {/* <Box pointerEvents="none" width="100%"> */}
       {children}
       {/* </Box> */}
-      <Box
+      {/* <Box
         position="absolute"
         right="0"
         width="6px"
@@ -65,7 +65,7 @@ const Resizeable = (props: ResizeableProps) => {
         data-index={slot}
         onMouseDown={e => onRightResize(e, slot)}
         css={{ cursor: 'e-resize' }}
-      />
+      /> */}
     </Flex>
   );
 };

@@ -11,7 +11,7 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
     e.stopPropagation();
     setInitalSlot(slot);
     const onMouseMove = (e: MouseEvent) => {
-      // 1.calculate leftOrRigth
+      // 1.calculate leftOrRight
       // this will be different in left handler
       const isToRight =
         e.target.dataset.index !== undefined && +e.target.dataset.index > slot;
@@ -26,6 +26,7 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
           );
       setMove(move);
       setSlot(e.target.getAttribute('data-index'));
+      // 3.stop mouse event at limit
       if ((isToRight && e.target.dataset.filled === 'true') || move === -3) {
         onMouseUp();
       }
@@ -46,21 +47,29 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
   const leftHandler = useCallback((e: MouseEvent, slot: number) => {
     e.preventDefault();
     e.stopPropagation();
-    setLeftOrRight('left');
     setInitalSlot(slot);
     const onMouseMove = (e: MouseEvent) => {
-      e.stopPropagation();
-      console.log('slot', slot, e.offsetX, e.target);
-      setSlot(prev => e.target.dataset.index || prev);
-      setMove(
-        prev =>
-          (slot - +e.target.dataset.index - 1) * 4 +
-          4 -
-          Math.floor(e.offsetX / 25)
-      );
+      // console.log('left-handler', slot, e.target);
+      // 1.calculate leftOrRight
+      const isToLeft =
+        e.target.dataset.index !== undefined && +e.target.dataset.index < slot;
+      // TODO if index is not present will be false which is not quite right
+      setLeftOrRight(isToLeft ? 'left' : 'right');
 
-      // console.log('slot', e.target.getAttribute('data-index'));
-      if (e.target.dataset.filled === 'true') {
+      // 2.calculate move
+      const move = isToLeft
+        ? Math.floor(e.target.offsetWidth / 25 - Math.floor(e.offsetX / 25) - 1)
+        : -Math.floor(e.offsetX / 25);
+      // console.log('move', e.offsetX, move, e.target);
+      setMove(move);
+      setSlot(e.target.getAttribute('data-index'));
+
+      // 3.stop mouse event at limit
+      if (
+        (isToLeft && e.target.dataset.filled === 'true') ||
+        (e.target.dataset.filled === 'true' && e.target.offsetWidth === 25)
+      ) {
+        // console.log('move remove', move);
         onMouseUp();
       }
     };
