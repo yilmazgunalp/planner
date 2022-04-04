@@ -31,26 +31,36 @@ const Resizeable = (props: ResizeableProps) => {
       {leftHandle && (
         <Box
           position="absolute"
+          background="none"
           left="0"
           width="6px"
           height="100%"
-          background="brown"
           data-index={slot}
           onMouseDown={e => onLeftResize(e, slot)}
-          css={{ cursor: 'w-resize' }}
+          css={{
+            cursor: 'w-resize',
+            '&:hover': {
+              background: 'blue',
+            },
+          }}
         />
       )}
       {children}
       {rightHandle && (
         <Box
           position="absolute"
+          background="none"
           right="0"
           width="6px"
           height="100%"
-          background="black"
           data-index={slot}
           onMouseDown={e => onRightResize(e, slot)}
-          css={{ cursor: 'e-resize' }}
+          css={{
+            cursor: 'e-resize',
+            '&:hover': {
+              background: 'green',
+            },
+          }}
         />
       )}
     </Flex>
