@@ -1,21 +1,12 @@
-import { Box, Flex } from '@chakra-ui/layout';
-import React, { ReactNode } from 'react';
-
-import styles from './Day.module.css';
+import { Flex } from '@chakra-ui/layout';
+import React from 'react';
 
 type TwoHourSlotProps = {
-  // gridColumnStart: string;
-  // gridColumnEnd: string;
   slot: string;
   filled: boolean;
 };
 
-export const TwoHourSlot = ({
-  slot,
-  filled,
-}: // gridColumnStart,
-// gridColumnEnd,
-TwoHourSlotProps) => (
+export const TwoHourSlot = ({ slot, filled }: TwoHourSlotProps) => (
   <Flex
     background={filled ? 'red' : '#99DDA0'}
     width="100%"
@@ -24,7 +15,5 @@ TwoHourSlotProps) => (
     className="hello"
     data-index={slot}
     data-filled={filled}
-
-    // gridColumn={`${gridColumnStart} / ${gridColumnEnd}`}
   ></Flex>
 );

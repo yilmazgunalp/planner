@@ -5,34 +5,50 @@ import Resizeable from 'components/3D/Resizable';
 import { TwoHourSlot } from './TwoHourSlot';
 import { useResize } from 'components/3D/useResize';
 
-type DayProps = {
-  children?: ReactNode;
-  title?: string;
-};
+// type DayProps = {
+//   children?: ReactNode;
+//   title?: string;
+// };
 type Slot = {
   gridColumnStart: string;
   gridColumnEnd: string;
-  filled?: boolean;
+  filled: boolean;
 };
-type Slots = Slot[] | [];
+type Slots = Slot[];
 
-export const Day = ({ children }: DayProps) => {
+export const Day = () => {
   const [slots, setSlots] = useState<Slots>([
-    { gridColumnStart: '1', gridColumnEnd: '5' },
-    { gridColumnStart: '5', gridColumnEnd: '9', filled: true },
-    { gridColumnStart: '9', gridColumnEnd: '13' },
-    { gridColumnStart: '13', gridColumnEnd: '17' },
-    { gridColumnStart: '17', gridColumnEnd: '21' },
+    { gridColumnStart: '1', gridColumnEnd: '5', filled: true },
+    { gridColumnStart: '5', gridColumnEnd: '9', filled: false },
+    { gridColumnStart: '9', gridColumnEnd: '13', filled: false },
+    { gridColumnStart: '13', gridColumnEnd: '17', filled: true },
+    { gridColumnStart: '17', gridColumnEnd: '21', filled: false },
 
     { gridColumnStart: '21', gridColumnEnd: '25', filled: true },
   ]);
   const ref = useRef<HTMLDivElement>();
-  const [move, slot, rightHandler, leftHandler, initialSlot, leftOrRight] =
-    useResize(ref);
+  const [
+    move,
+    slot,
+    rightHandler,
+    leftHandler,
+    initialSlot,
+    leftOrRight,
+    leftOrRightHandler,
+  ] = useResize(ref);
 
   useEffect(() => {
     if (slot !== undefined && initialSlot !== undefined) {
-      setSlots(updateSlots(move, +slot, slots, initialSlot, leftOrRight));
+      setSlots(
+        updateSlots(
+          move,
+          +slot,
+          slots,
+          initialSlot,
+          leftOrRight,
+          leftOrRightHandler
+        )
+      );
     }
   }, [move, slot]);
   return (
@@ -41,6 +57,8 @@ export const Day = ({ children }: DayProps) => {
         <Resizeable
           onRightResize={rightHandler}
           onLeftResize={leftHandler}
+          leftHandle={slot.filled && index !== 0}
+          rightHandle={slot.filled && index !== slots.length - 1}
           slot={index}
           {...slot}
         >
@@ -60,7 +78,7 @@ const resizeSlot = (start: number, end: number): Slot => {
 };
 
 const refillWithSlots = (start: number, limit: number): Slots => {
-  let result = [];
+  const result: Slot[] = [];
   let inComplete = true;
   while (inComplete) {
     if (start === limit) break;
@@ -68,6 +86,7 @@ const refillWithSlots = (start: number, limit: number): Slots => {
       result.push({
         gridColumnStart: start.toString(),
         gridColumnEnd: (start + 4).toString(),
+        filled: false,
       });
       start += 4;
       continue;
@@ -75,6 +94,7 @@ const refillWithSlots = (start: number, limit: number): Slots => {
       result.push({
         gridColumnStart: start.toString(),
         gridColumnEnd: limit.toString(),
+        filled: false,
       });
       inComplete = false;
     }
@@ -95,36 +115,16 @@ const getBeginingAndEndingForRightHandler = (
 
   return [begining, ending];
 };
-const getBeginingAndEndingForLeftHandler = (
-  slots: Slots,
-  slot: number
-): Slot[][] => {
-  const nextFilledItemIndex = slots.slice(slot + 1).findIndex(e => e.filled);
-  const ending =
-    nextFilledItemIndex === -1
-      ? []
-      : slots.slice(nextFilledItemIndex + slot + 1);
-  const previousFilledItemIndex = slots
-    .map(e => e.filled)
-    .slice(0, slot)
-    .lastIndexOf(true);
-  const begining =
-    previousFilledItemIndex === -1
-      ? []
-      : slots.slice(0, previousFilledItemIndex + 1);
-
-  return [begining, ending];
-};
 
 const updateSlots = (
   move: number,
   slot: number,
   slots: Slots,
   initialSlot: number,
-  leftOrRight: 'left' | 'right'
+  leftOrRight: 'left' | 'right',
+  leftOrRightHandler
 ): Slots => {
-  //TODO figure out if logic for righthandler vs lefthandler
-  if (false) {
+  if (leftOrRightHandler === 'right-handler') {
     if (move !== 0) {
       // get the begining and ending
       const [begining, ending] = getBeginingAndEndingForRightHandler(

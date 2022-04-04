@@ -4,18 +4,22 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
   const [move, setMove] = useState(0);
   const [slot, setSlot] = useState<string>();
   const [initialSlot, setInitalSlot] = useState<number>();
-  const [leftOrRight, setLeftOrRight] = useState<'left' | 'right'>();
+  const [toleftOrToRight, setToLeftOrToRight] = useState<'left' | 'right'>();
+  const [leftOrRightHandler, setleftOrRightHandler] = useState<
+    'left-handler' | 'right-handler'
+  >();
 
   const rightHandler = useCallback((e: React.MouseEvent, slot: number) => {
     e.preventDefault();
     e.stopPropagation();
+    setleftOrRightHandler('right-handler');
     setInitalSlot(slot);
     const onMouseMove = (e: MouseEvent) => {
       // 1.calculate leftOrRight
       const isToRight =
         e.target.dataset.index !== undefined && +e.target.dataset.index > slot;
       // TODO if index is not present will be false which is not quite right
-      setLeftOrRight(isToRight ? 'right' : 'left');
+      setToLeftOrToRight(isToRight ? 'right' : 'left');
 
       // 2.calculate move
       const move = isToRight
@@ -43,16 +47,17 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
     document.addEventListener('mouseup', onMouseUp);
   }, []);
 
-  const leftHandler = useCallback((e: MouseEvent, slot: number) => {
+  const leftHandler = useCallback((e: React.MouseEvent, slot: number) => {
     e.preventDefault();
     e.stopPropagation();
+    setleftOrRightHandler('left-handler');
     setInitalSlot(slot);
     const onMouseMove = (e: MouseEvent) => {
       // 1.calculate leftOrRight
       const isToLeft =
         e.target.dataset.index !== undefined && +e.target.dataset.index < slot;
       // TODO if index is not present will be false which is not quite right
-      setLeftOrRight(isToLeft ? 'left' : 'right');
+      setToLeftOrToRight(isToLeft ? 'left' : 'right');
 
       const leftMove =
         e.target.offsetWidth > 25
@@ -97,6 +102,7 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
     rightHandler,
     leftHandler,
     initialSlot,
-    leftOrRight,
+    toleftOrToRight,
+    leftOrRightHandler,
   ] as const;
 };
