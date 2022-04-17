@@ -43,7 +43,7 @@ export const TimeLabels = ({ slots }: TimeLabelsProps) => {
     >
       <TimeLabel time={minutes[1]} gridColumn="1 / 7" />
       {slots.map(slot => {
-        const start = (+slot.gridColumnEnd - 1) * 5 - 3;
+        const start = (+slot.gridColumnEnd - 1) * 5 + 1;
         return (
           <TimeLabel
             time={minutes[slot.gridColumnEnd]}
@@ -61,7 +61,7 @@ const TimeLabel = ({ time, gridColumn }) => (
     fontSize="xs"
     fontFamily="sans-serif"
     letterSpacing="tight"
-    lineHeight="short"
+    lineHeight="100%"
     gridColumn={gridColumn}
   >
     {time}

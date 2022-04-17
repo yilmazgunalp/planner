@@ -3,26 +3,27 @@ import React, { ReactNode, useRef, useState, useEffect } from 'react';
 import styles from './Day.module.css';
 import Resizeable from 'components/3D/Resizable';
 import { TwoHourSlot } from './TwoHourSlot';
+import { TimeLabels } from './TimeLabels';
 import { useResize } from 'components/3D/useResize';
+import { Box, Stack } from '@chakra-ui/layout';
 
 // type DayProps = {
 //   children?: ReactNode;
 //   title?: string;
 // };
-type Slot = {
+export type Slot = {
   gridColumnStart: string;
   gridColumnEnd: string;
   filled: boolean;
 };
-type Slots = Slot[];
 
 export const Day = () => {
-  const [slots, setSlots] = useState<Slots>([
-    { gridColumnStart: '1', gridColumnEnd: '5', filled: true },
-    { gridColumnStart: '5', gridColumnEnd: '9', filled: false },
-    { gridColumnStart: '9', gridColumnEnd: '13', filled: false },
-    { gridColumnStart: '13', gridColumnEnd: '17', filled: true },
-    { gridColumnStart: '17', gridColumnEnd: '21', filled: false },
+  const [slots, setSlots] = useState<Slot[]>([
+    { gridColumnStart: '1', gridColumnEnd: '7', filled: true },
+    { gridColumnStart: '7', gridColumnEnd: '9', filled: false },
+    { gridColumnStart: '9', gridColumnEnd: '14', filled: false },
+    { gridColumnStart: '14', gridColumnEnd: '18', filled: true },
+    { gridColumnStart: '18', gridColumnEnd: '21', filled: false },
 
     { gridColumnStart: '21', gridColumnEnd: '25', filled: true },
   ]);
@@ -52,20 +53,25 @@ export const Day = () => {
     }
   }, [move, slot]);
   return (
-    <div className={styles.day} ref={ref}>
-      {slots.map((slot, index) => (
-        <Resizeable
-          onRightResize={rightHandler}
-          onLeftResize={leftHandler}
-          leftHandle={slot.filled && index !== 0}
-          rightHandle={slot.filled && index !== slots.length - 1}
-          slot={index}
-          {...slot}
-        >
-          <TwoHourSlot slot={index.toString()} filled={slot.filled} />
-        </Resizeable>
-      ))}
-    </div>
+    <Stack flexGrow={1} background="black">
+      <TimeLabels slots={slots}></TimeLabels>
+      <Box paddingX="15px" style={{ marginTop: '4px' }}>
+        <div className={styles.day} ref={ref}>
+          {slots.map((slot, index) => (
+            <Resizeable
+              onRightResize={rightHandler}
+              onLeftResize={leftHandler}
+              leftHandle={slot.filled && index !== 0}
+              rightHandle={slot.filled && index !== slots.length - 1}
+              slot={index}
+              {...slot}
+            >
+              <TwoHourSlot slot={index.toString()} filled={slot.filled} />
+            </Resizeable>
+          ))}
+        </div>
+      </Box>
+    </Stack>
   );
 };
 
@@ -77,7 +83,7 @@ const resizeSlot = (start: number, end: number): Slot => {
   };
 };
 
-const refillWithSlots = (start: number, limit: number): Slots => {
+const refillWithSlots = (start: number, limit: number): Slot[] => {
   const result: Slot[] = [];
   let inComplete = true;
   while (inComplete) {
@@ -103,7 +109,7 @@ const refillWithSlots = (start: number, limit: number): Slots => {
 };
 
 const getBeginingAndEndingForRightHandler = (
-  slots: Slots,
+  slots: Slot[],
   slot: number
 ): Slot[][] => {
   const begining = slots.slice(0, slot);
@@ -119,11 +125,11 @@ const getBeginingAndEndingForRightHandler = (
 const updateSlots = (
   move: number,
   slot: number,
-  slots: Slots,
+  slots: Slot[],
   initialSlot: number,
   leftOrRight: 'left' | 'right',
   leftOrRightHandler
-): Slots => {
+): Slot[] => {
   if (leftOrRightHandler === 'right-handler') {
     if (move !== 0) {
       // get the begining and ending
@@ -152,10 +158,10 @@ const updateSlots = (
             : +slots[nextFilledItemIndex + slot + 1].gridColumnStart;
       }
       // calculate the new end
-      const result = [];
+      const result: Slot[] = [];
       const resized = slots[initialSlot];
       const newEnd = move + +resized.gridColumnEnd;
-      let end = newEnd <= limit ? newEnd : undefined;
+      const end = newEnd <= limit ? newEnd : undefined;
       // end might be undefined because of crazy mouse events.
       // if so just dont do anything
       if (end) {
@@ -169,7 +175,7 @@ const updateSlots = (
     }
   } else {
     if (move !== 0) {
-      const reversed = slots.reduceRight((acc, cur) => {
+      const reversed = slots.reduceRight<Slot[]>((acc, cur) => {
         acc.push(cur);
         return acc;
       }, []) as any;
@@ -193,19 +199,19 @@ const updateSlots = (
 
       // limit to resize
       // TODO move to helper function
-      let limit = begining.length
+      const limit = begining.length
         ? +begining[begining.length - 1].gridColumnEnd
         : 1;
 
       // calculate the new end
-      const result = [];
+      const result: Slot[] = [];
       const resized =
         leftOrRight === 'right'
           ? reversed[slots.length - 1 - slot]
           : reversed[slots.length - 1 - slot - 1];
 
-      let newStart = +resized.gridColumnStart - move;
-      let start = newStart >= limit ? newStart : undefined;
+      const newStart = +resized.gridColumnStart - move;
+      const start = newStart >= limit ? newStart : undefined;
 
       // start might be undefined because of crazy mouse events.
       // if so just dont do anything

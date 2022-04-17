@@ -1,5 +1,5 @@
 .day {
-  width: 100%;
+  width: 600px;
   display: grid;
   grid-template-columns: repeat(24, 1fr);
   background-color: white;
