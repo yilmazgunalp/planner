@@ -1,4 +1,4 @@
-import { Flex, Stack, Text, Spacer } from '@chakra-ui/layout';
+import { Flex, Stack, Text } from '@chakra-ui/layout';
 import React from 'react';
 
 type DayLabelProps = {
@@ -8,13 +8,12 @@ type DayLabelProps = {
 };
 
 export const DayLabel = ({ dayOfTheMonth, month, day }: DayLabelProps) => (
-  <Stack spacing="3" minWidth="4.5rem">
-    <Flex alignItems="center">
+  <Stack spacing="2" minWidth="4.5rem">
+    <Flex alignItems="center" columnGap="2">
       <Text textTransform="uppercase" fontSize="3xl" lineHeight="7">
         {dayOfTheMonth}
       </Text>
-      <Spacer />
-      <Text casing="uppercase" fontSize="sm" lineHeight="short">
+      <Text casing="uppercase" fontSize="xs" lineHeight="short">
         {month}
       </Text>
     </Flex>

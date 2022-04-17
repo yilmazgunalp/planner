@@ -53,7 +53,7 @@ export const Day = () => {
     }
   }, [move, slot]);
   return (
-    <Stack flexGrow={1} background="black">
+    <Stack flexGrow={1}>
       <TimeLabels slots={slots}></TimeLabels>
       <Box paddingX="15px" style={{ marginTop: '4px' }}>
         <div className={styles.day} ref={ref}>
