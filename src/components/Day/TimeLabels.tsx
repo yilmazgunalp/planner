@@ -40,6 +40,7 @@ export const TimeLabels = ({ slots }: TimeLabelsProps) => {
       alignItems="center"
       display="grid"
       gridTemplateColumns="repeat(126, 1fr)"
+      width="630px"
     >
       <TimeLabel time={minutes[1]} gridColumn="1 / 7" />
       {slots.map(slot => {

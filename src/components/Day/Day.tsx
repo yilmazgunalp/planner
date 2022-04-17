@@ -7,10 +7,6 @@ import { TimeLabels } from './TimeLabels';
 import { useResize } from 'components/3D/useResize';
 import { Box, Stack } from '@chakra-ui/layout';
 
-// type DayProps = {
-//   children?: ReactNode;
-//   title?: string;
-// };
 export type Slot = {
   gridColumnStart: string;
   gridColumnEnd: string;

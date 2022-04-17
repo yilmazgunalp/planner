@@ -2,5 +2,6 @@
   width: 600px;
   display: grid;
   grid-template-columns: repeat(24, 1fr);
-  background-color: white;
+  background-color: #171923;
+  border-radius: 0.75rem;
 }
