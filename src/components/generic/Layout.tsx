@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import Head from 'next/head';
-import Footer from './generic/Footer';
+import { Footer } from './Footer';
 import { Stack } from '@chakra-ui/layout';
 
 type Props = {

@@ -1,4 +1,4 @@
-import Layout from 'components/Layout';
+import Layout from 'components/generic/Layout';
 
 import { Stack } from '@chakra-ui/react';
 import { DayHolder } from 'components/Day/DayHolder';
