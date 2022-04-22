@@ -1,10 +1,11 @@
 import Layout from 'components/generic/Layout';
 
-import { Stack } from '@chakra-ui/react';
+import { Stack, Button, useDisclosure } from '@chakra-ui/react';
 import { DayHolder } from 'components/Day/DayHolder';
 import { Heading } from '@chakra-ui/react';
 import React from 'react';
 import Quote from 'components/generic/Quote';
+import { PlanManager } from 'components/Plan/PlanManager';
 
 const IndexPage = () => (
   <Layout title="School Holidays Planner">
@@ -16,8 +17,9 @@ const IndexPage = () => (
       <Heading as="h1" textAlign="center">
         Plan your Day
       </Heading>
-      <DayHolder day="Monday" dayOfTheMonth="24" month="dec" />
+      <PlanManager />
     </Stack>
+    <Stack m="50px auto" backgroundColor="gray.900" width="max-content"></Stack>
   </Layout>
 );
 

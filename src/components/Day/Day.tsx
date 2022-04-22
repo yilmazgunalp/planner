@@ -62,7 +62,11 @@ export const Day = () => {
               slot={index}
               {...slot}
             >
-              <TwoHourSlot slot={index.toString()} filled={slot.filled} />
+              <TwoHourSlot
+                slot={index.toString()}
+                start={slot.gridColumnStart}
+                filled={slot.filled}
+              />
             </Resizeable>
           ))}
         </div>
