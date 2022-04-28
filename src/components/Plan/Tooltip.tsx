@@ -11,17 +11,25 @@ export const Tooltip = ({ title, description }: Props) => (
     alignItems="baseline"
     justifyContent="flex-end"
     gap="none"
+    pointerEvents="none"
     css={{
       position: 'absolute',
-      bottom: '10px',
+      top: 'calc(100% + 10px)',
 
-      left: '20px',
+      left: '10px',
       width: '200px',
       padding: '5px 8px 8px',
       borderRadius: '10px',
       background: '#fff',
       color: '#000',
       zIndex: '999',
+      '&:before': {
+        content: '""',
+        position: 'absolute',
+        bottom: '100%',
+        border: '8px solid #000',
+        borderColor: 'transparent transparent #fff transparent',
+      },
     }}
   >
     <Heading fontSize="sm">{title}</Heading>

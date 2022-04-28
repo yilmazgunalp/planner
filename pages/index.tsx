@@ -8,7 +8,7 @@ import Quote from 'components/generic/Quote';
 import { PlanManager } from 'components/Plan/PlanManager';
 
 const IndexPage = () => (
-  <Layout title="School Holidays Planner">
+  <Layout title="Day Planner">
     <Stack gap="14">
       <Quote
         quote="Either you run the day or the day runs you."
