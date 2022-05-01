@@ -1,18 +1,21 @@
 import { Flex } from '@chakra-ui/layout';
-import { PlanContext } from 'components/Plan/planContext';
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { theme } from '../../../theme';
-import { Tooltip } from '../Plan';
+import { Activity, Tooltip } from '../Plan';
 type TwoHourSlotProps = {
   slot: string;
-  filled: boolean;
+  filled?: Activity;
   start: string;
+  onOpen: (start: string) => void;
 };
 
-export const TwoHourSlot = ({ slot, filled, start }: TwoHourSlotProps) => {
+export const TwoHourSlot = ({
+  slot,
+  filled,
+  start,
+  onOpen,
+}: TwoHourSlotProps) => {
   const [showTooltip, setShowTooltip] = useState(false);
-  const { onOpen } = useContext(PlanContext);
-  if (!onOpen) throw new Error('need a plan Stan!');
 
   return (
     <Flex
@@ -47,10 +50,7 @@ export const TwoHourSlot = ({ slot, filled, start }: TwoHourSlotProps) => {
       }}
     >
       {showTooltip && filled && (
-        <Tooltip
-          title="Kayaking in Sholhaven River"
-          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"
-        ></Tooltip>
+        <Tooltip title={filled.name} description={filled.description}></Tooltip>
       )}
     </Flex>
   );

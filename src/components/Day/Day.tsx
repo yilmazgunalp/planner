@@ -6,23 +6,44 @@ import { TwoHourSlot } from './TwoHourSlot';
 import { TimeLabels } from './TimeLabels';
 import { useResize } from 'components/3D/useResize';
 import { Box, Stack } from '@chakra-ui/layout';
+import { useLocalstorageState } from 'rooks';
+import { PlanForm, Activity } from 'components/Plan';
+import { useDisclosure } from '@chakra-ui/react';
+
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+} from '@chakra-ui/react';
 
 export type Slot = {
   gridColumnStart: string;
   gridColumnEnd: string;
   filled: boolean;
+  activity?: Activity;
 };
 
 export const Day = () => {
-  const [slots, setSlots] = useState<Slot[]>([
-    { gridColumnStart: '1', gridColumnEnd: '7', filled: true },
-    { gridColumnStart: '7', gridColumnEnd: '9', filled: false },
-    { gridColumnStart: '9', gridColumnEnd: '14', filled: false },
-    { gridColumnStart: '14', gridColumnEnd: '18', filled: true },
-    { gridColumnStart: '18', gridColumnEnd: '21', filled: false },
+  const [plans, set, remove] = useLocalstorageState<Slot[]>('plans', []);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [editSlot, setEditSlot] = useState<string>();
 
-    { gridColumnStart: '21', gridColumnEnd: '25', filled: true },
-  ]);
+  const [slots, setSlots] = useState<Slot[]>(
+    plans?.length
+      ? plans
+      : [
+          { gridColumnStart: '1', gridColumnEnd: '7', filled: false },
+          { gridColumnStart: '7', gridColumnEnd: '9', filled: false },
+          { gridColumnStart: '9', gridColumnEnd: '14', filled: false },
+          { gridColumnStart: '14', gridColumnEnd: '18', filled: false },
+          { gridColumnStart: '18', gridColumnEnd: '21', filled: false },
+
+          { gridColumnStart: '21', gridColumnEnd: '25', filled: false },
+        ]
+  );
   const ref = useRef<HTMLDivElement>();
   const [
     move,
@@ -33,6 +54,23 @@ export const Day = () => {
     leftOrRight,
     leftOrRightHandler,
   ] = useResize(ref);
+
+  const handleSubmit = data => {
+    if (editSlot) {
+      setSlots(
+        slots.map(slot =>
+          slot.gridColumnStart === editSlot
+            ? { ...slot, activity: data, filled: true }
+            : slot
+        )
+      );
+      onClose();
+    }
+  };
+  const handleOpenModal = (slot: string) => {
+    setEditSlot(slot);
+    onOpen();
+  };
 
   useEffect(() => {
     if (slot !== undefined && initialSlot !== undefined) {
@@ -48,6 +86,10 @@ export const Day = () => {
       );
     }
   }, [move, slot]);
+
+  useEffect(() => {
+    set(slots);
+  }, [slots]);
   return (
     <Stack flexGrow={1}>
       <TimeLabels slots={slots}></TimeLabels>
@@ -65,21 +107,34 @@ export const Day = () => {
               <TwoHourSlot
                 slot={index.toString()}
                 start={slot.gridColumnStart}
-                filled={slot.filled}
+                // pass acitivty instead
+                filled={slot.activity}
+                onOpen={handleOpenModal}
               />
             </Resizeable>
           ))}
         </div>
       </Box>
+      <Modal isOpen={isOpen} onClose={onClose} size="xs">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>What will you do?</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <PlanForm onSubmit={handleSubmit} />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Stack>
   );
 };
 
-const resizeSlot = (start: number, end: number): Slot => {
+const resizeSlot = (start: number, end: number, activity?: Activity): Slot => {
   return {
     gridColumnStart: start.toString(),
     gridColumnEnd: end.toString(),
     filled: true,
+    activity,
   };
 };
 
@@ -165,7 +220,11 @@ const updateSlots = (
       // end might be undefined because of crazy mouse events.
       // if so just dont do anything
       if (end) {
-        const resizedSlot = resizeSlot(+resized.gridColumnStart, end);
+        const resizedSlot = resizeSlot(
+          +resized.gridColumnStart,
+          end,
+          resized.activity
+        );
         result.push(resizedSlot);
         const refilledSlots = refillWithSlots(end, limit);
         return begining.concat(result, refilledSlots, ending);
@@ -216,7 +275,11 @@ const updateSlots = (
       // start might be undefined because of crazy mouse events.
       // if so just dont do anything
       if (start) {
-        const resizedSlot = resizeSlot(start, +resized.gridColumnEnd);
+        const resizedSlot = resizeSlot(
+          start,
+          +resized.gridColumnEnd,
+          resized.activity
+        );
         result.push(resizedSlot);
         const refilledSlots = refillWithSlots(limit, start);
 

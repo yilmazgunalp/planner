@@ -3,7 +3,7 @@ import { Stack, Text, Heading } from '@chakra-ui/react';
 
 type Props = {
   title: string;
-  description: string;
+  description?: string;
 };
 
 export const Tooltip = ({ title, description }: Props) => (
