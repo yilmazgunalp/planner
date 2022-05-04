@@ -1,4 +1,4 @@
-import React, { ReactNode, useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 
 import styles from './Day.module.css';
 import Resizeable from 'components/3D/Resizable';
@@ -26,24 +26,31 @@ export type Slot = {
   activity?: Activity;
 };
 
-export const Day = () => {
-  const [plans, set, remove] = useLocalstorageState<Slot[]>('plans', []);
+const defaultSlots = [
+  { gridColumnStart: '1', gridColumnEnd: '7', filled: false },
+  { gridColumnStart: '7', gridColumnEnd: '9', filled: false },
+  { gridColumnStart: '9', gridColumnEnd: '14', filled: false },
+  { gridColumnStart: '14', gridColumnEnd: '18', filled: false },
+  { gridColumnStart: '18', gridColumnEnd: '21', filled: false },
+
+  { gridColumnStart: '21', gridColumnEnd: '25', filled: false },
+];
+
+type Props = {
+  storageKey: string;
+};
+
+export const Day = ({ storageKey }: Props) => {
+  const [plans, setLocalStorage, remove] = useLocalstorageState<{
+    [key: string]: Slot[];
+  }>('plans', {});
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [editSlot, setEditSlot] = useState<string>();
-
   const [slots, setSlots] = useState<Slot[]>(
-    plans?.length
-      ? plans
-      : [
-          { gridColumnStart: '1', gridColumnEnd: '7', filled: false },
-          { gridColumnStart: '7', gridColumnEnd: '9', filled: false },
-          { gridColumnStart: '9', gridColumnEnd: '14', filled: false },
-          { gridColumnStart: '14', gridColumnEnd: '18', filled: false },
-          { gridColumnStart: '18', gridColumnEnd: '21', filled: false },
-
-          { gridColumnStart: '21', gridColumnEnd: '25', filled: false },
-        ]
+    plans && plans[storageKey] ? plans[storageKey] : defaultSlots
   );
+
+
   const ref = useRef<HTMLDivElement>();
   const [
     move,
@@ -64,6 +71,7 @@ export const Day = () => {
             : slot
         )
       );
+
       onClose();
     }
   };
@@ -88,8 +96,13 @@ export const Day = () => {
   }, [move, slot]);
 
   useEffect(() => {
-    set(slots);
+    setLocalStorage({ ...plans, [storageKey]: slots });
   }, [slots]);
+
+  useEffect(() => {
+    setSlots(plans[storageKey] || defaultSlots);
+  }, [storageKey]);
+
   return (
     <Stack flexGrow={1}>
       <TimeLabels slots={slots}></TimeLabels>

@@ -7,15 +7,16 @@ type DayHolderProps = {
   dayOfTheMonth: string;
   month: string;
   day: string;
+  storageKey: string;
 };
 
-export const DayHolder = (props: DayHolderProps) => {
+export const DayHolder = ({ storageKey, ...props }: DayHolderProps) => {
   return (
     <Flex width="100%">
       <Box alignSelf="flex-end">
         <DayLabel {...props} />
       </Box>
-      <Day />
+      <Day storageKey={storageKey} />
     </Flex>
   );
 };
