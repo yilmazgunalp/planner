@@ -60,6 +60,7 @@ export const Day = ({ storageKey }: Props) => {
     initialSlot,
     leftOrRight,
     leftOrRightHandler,
+    // @ts-ignore
   ] = useResize(ref);
 
   const handleSubmit = data => {
@@ -81,7 +82,8 @@ export const Day = ({ storageKey }: Props) => {
   };
 
   useEffect(() => {
-    if (slot !== undefined && initialSlot !== undefined) {
+    //Thank you typescript lefttoright might be undefined?? causing bugss
+    if (slot !== undefined && initialSlot !== undefined && leftOrRight !== undefined) {
       setSlots(
         updateSlots(
           move,
@@ -107,6 +109,8 @@ export const Day = ({ storageKey }: Props) => {
     <Stack flexGrow={1}>
       <TimeLabels slots={slots}></TimeLabels>
       <Box paddingX="15px" style={{ marginTop: '4px' }}>
+         {/* 
+  // @ts-ignore */}
         <div className={styles.day} ref={ref}>
           {slots.map((slot, index) => (
             <Resizeable

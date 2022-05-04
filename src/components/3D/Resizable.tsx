@@ -36,7 +36,7 @@ const Resizeable = (props: ResizeableProps) => {
           width="6px"
           height="100%"
           data-index={slot}
-          onMouseDown={e => onLeftResize(e, slot)}
+          onMouseDown={e => onLeftResize && onLeftResize(e, slot)}
           css={{
             cursor: 'w-resize',
             '&:hover': {
@@ -54,7 +54,7 @@ const Resizeable = (props: ResizeableProps) => {
           width="6px"
           height="100%"
           data-index={slot}
-          onMouseDown={e => onRightResize(e, slot)}
+          onMouseDown={e => onRightResize && onRightResize(e, slot)}
           css={{
             cursor: 'e-resize',
             '&:hover': {

@@ -36,6 +36,7 @@ export const theme = extendTheme(
     },
   },
   withDefaultVariant({
+    // @ts-ignore
     variant: 'ghost',
     components: ['Button', 'IconButton'],
   })

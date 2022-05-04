@@ -17,7 +17,7 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
     const onMouseMove = (e: MouseEvent) => {
       // 1.calculate leftOrRight
       const isToRight =
-        e.target.dataset.index !== undefined && +e.target.dataset.index > slot;
+        (<HTMLDivElement>e.target).dataset?.index !== undefined && (+((<HTMLDivElement>e.target).dataset.index ?? 0) > slot);
       // TODO if index is not present will be false which is not quite right
       setToLeftOrToRight(isToRight ? 'right' : 'left');
 
@@ -25,25 +25,25 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
       const move = isToRight
         ? Math.floor(e.offsetX / 25)
         : Math.floor(
-            -(e.target.offsetWidth / 25 - Math.floor(e.offsetX / 25) - 1)
+            -((<HTMLDivElement>e.target).offsetWidth / 25 - Math.floor(e.offsetX / 25) - 1)
           );
       setMove(move);
-      setSlot(e.target.getAttribute('data-index'));
+      setSlot((<HTMLDivElement>e.target).getAttribute('data-index') ?? undefined);
       // 3.stop mouse event at limit
-      if ((isToRight && e.target.dataset.filled === 'true') || move === -3) {
+      if ((isToRight && (<HTMLDivElement>e.target).dataset.filled === 'true') || move === -3) {
         onMouseUp();
       }
     };
     function onMouseUp() {
       e.stopPropagation();
       if (ref) {
-        ref.current.removeEventListener('mousemove', onMouseMove);
-        ref.current.removeEventListener('mouseup', onMouseUp);
+        ref.current?.removeEventListener('mousemove', onMouseMove);
+        ref.current?.removeEventListener('mouseup', onMouseUp);
         document.removeEventListener('mouseup', onMouseUp);
       }
     }
-    ref.current.addEventListener('mousemove', onMouseMove);
-    ref.current.addEventListener('mouseup', onMouseUp);
+    ref?.current?.addEventListener('mousemove', onMouseMove);
+    ref?.current?.addEventListener('mouseup', onMouseUp);
     document.addEventListener('mouseup', onMouseUp);
   }, []);
 
@@ -55,14 +55,15 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
     const onMouseMove = (e: MouseEvent) => {
       // 1.calculate leftOrRight
       const isToLeft =
-        e.target.dataset.index !== undefined && +e.target.dataset.index < slot;
+      // This is causing issue???
+      (<HTMLDivElement>e.target).dataset.index !== undefined && (+((<HTMLDivElement>e.target).dataset.index ?? 0) < slot);
       // TODO if index is not present will be false which is not quite right
       setToLeftOrToRight(isToLeft ? 'left' : 'right');
 
       const leftMove =
-        e.target.offsetWidth > 25
+      (<HTMLDivElement>e.target).offsetWidth > 25
           ? Math.floor(
-              e.target.offsetWidth / 25 - Math.floor(e.offsetX / 25) - 1
+            (<HTMLDivElement>e.target).offsetWidth / 25 - Math.floor(e.offsetX / 25) - 1
             )
           : // this is to register a move on borders between two slots
           e.offsetX < 7
@@ -73,12 +74,12 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
       const move = isToLeft ? leftMove : -Math.floor(e.offsetX / 25);
 
       setMove(move);
-      setSlot(e.target.getAttribute('data-index'));
+      setSlot((<HTMLDivElement>e.target).dataset.index);
 
       // 3.stop mouse event at limit
       if (
-        (isToLeft && e.target.dataset.filled === 'true') ||
-        (e.target.dataset.filled === 'true' && e.target.offsetWidth === 25)
+        (isToLeft && (<HTMLDivElement>e.target).dataset.filled === 'true') ||
+        ((<HTMLDivElement>e.target).dataset.filled === 'true' && (<HTMLDivElement>e.target).offsetWidth === 25)
       ) {
         onMouseUp();
       }
@@ -86,13 +87,13 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
     function onMouseUp() {
       e.stopPropagation();
       if (ref) {
-        ref.current.removeEventListener('mousemove', onMouseMove);
-        ref.current.removeEventListener('mouseup', onMouseUp);
+        ref.current?.removeEventListener('mousemove', onMouseMove);
+        ref.current?.removeEventListener('mouseup', onMouseUp);
         document.removeEventListener('mouseup', onMouseUp);
       }
     }
-    ref.current.addEventListener('mousemove', onMouseMove);
-    ref.current.addEventListener('mouseup', onMouseUp);
+    ref?.current?.addEventListener('mousemove', onMouseMove);
+    ref?.current?.addEventListener('mouseup', onMouseUp);
     document.addEventListener('mouseup', onMouseUp);
   }, []);
 
