@@ -114,6 +114,7 @@ export const Day = ({ storageKey }: Props) => {
         <div className={styles.day} ref={ref}>
           {slots.map((slot, index) => (
             <Resizeable
+            key={slot.gridColumnStart}
               onRightResize={rightHandler}
               onLeftResize={leftHandler}
               leftHandle={slot.filled && index !== 0}

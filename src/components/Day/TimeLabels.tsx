@@ -47,6 +47,7 @@ export const TimeLabels = ({ slots }: TimeLabelsProps) => {
         const start = (+slot.gridColumnEnd - 1) * 5 + 1;
         return (
           <TimeLabel
+          key={slot.gridColumnStart}
             time={minutes[slot.gridColumnEnd]}
             gridColumn={`${start} / ${start + 6}`}
           />
