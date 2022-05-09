@@ -27,11 +27,11 @@ export type Slot = {
 };
 
 const defaultSlots = [
-  { gridColumnStart: '1', gridColumnEnd: '7', filled: false },
-  { gridColumnStart: '7', gridColumnEnd: '9', filled: false },
-  { gridColumnStart: '9', gridColumnEnd: '14', filled: false },
-  { gridColumnStart: '14', gridColumnEnd: '18', filled: false },
-  { gridColumnStart: '18', gridColumnEnd: '21', filled: false },
+  { gridColumnStart: '1', gridColumnEnd: '5', filled: false },
+  { gridColumnStart: '5', gridColumnEnd: '9', filled: false },
+  { gridColumnStart: '9', gridColumnEnd: '13', filled: false },
+  { gridColumnStart: '13', gridColumnEnd: '17', filled: false },
+  { gridColumnStart: '17', gridColumnEnd: '21', filled: false },
 
   { gridColumnStart: '21', gridColumnEnd: '25', filled: false },
 ];
