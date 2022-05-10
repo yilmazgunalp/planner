@@ -119,7 +119,7 @@ export const Day = ({ storageKey }: Props) => {
               onLeftResize={leftHandler}
               leftHandle={slot.filled && index !== 0}
               rightHandle={slot.filled && index !== slots.length - 1}
-              slot={index}
+              slotIndex={index}
               {...slot}
             >
               <TwoHourSlot

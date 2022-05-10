@@ -1,5 +1,8 @@
 import { MutableRefObject, useState, useCallback } from 'react';
 
+const UNIT = 25;
+const calculateMoveUnits = (offsetX: number) => Math.floor(offsetX / UNIT);
+
 export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
   const [move, setMove] = useState(0);
   const [slot, setSlot] = useState<string>();
@@ -9,28 +12,30 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
     'left-handler' | 'right-handler'
   >();
 
-  const rightHandler = useCallback((e: React.MouseEvent, slot: number) => {
+  const rightHandler = useCallback((e: React.MouseEvent, initialSlot: number) => {
     e.preventDefault();
     e.stopPropagation();
     setleftOrRightHandler('right-handler');
-    setInitalSlot(slot);
+    setInitalSlot(initialSlot);
     const onMouseMove = (e: MouseEvent) => {
       // 1.calculate leftOrRight
+      const targetsDataset = (<HTMLDivElement>e.target).dataset;
+      const offsetX = e.offsetX;
       const isToRight =
-        (<HTMLDivElement>e.target).dataset?.index !== undefined && (+((<HTMLDivElement>e.target).dataset.index ?? 0) > slot);
-      // TODO if index is not present will be false which is not quite right
+        targetsDataset?.index && (+targetsDataset.index > initialSlot);
+      // TODO if index is not present will be false which is not quite right -- pun intended
       setToLeftOrToRight(isToRight ? 'right' : 'left');
 
       // 2.calculate move
       const move = isToRight
-        ? Math.floor(e.offsetX / 25)
+        ? calculateMoveUnits(offsetX)
         : Math.floor(
-            -((<HTMLDivElement>e.target).offsetWidth / 25 - Math.floor(e.offsetX / 25) - 1)
+            -((<HTMLDivElement>e.target).offsetWidth / UNIT - calculateMoveUnits(offsetX) - 1)
           );
       setMove(move);
-      setSlot((<HTMLDivElement>e.target).getAttribute('data-index') ?? undefined);
-      // 3.stop mouse event at limit
-      if ((isToRight && (<HTMLDivElement>e.target).dataset.filled === 'true') || move === -3) {
+      setSlot(targetsDataset.index ?? undefined);
+      // 3.stop mouse event at limit -- -3 left limit minimum time length for a filled slot
+      if ((isToRight && targetsDataset.filled === 'true') || move === -3) {
         onMouseUp();
       }
     };

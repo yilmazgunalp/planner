@@ -5,7 +5,7 @@ type ResizeableProps = {
   children: ReactNode;
   onRightResize?: (e: MouseEvent, slot: number) => void;
   onLeftResize?: (e: MouseEvent, slot: number) => void;
-  slot: number;
+  slotIndex: number;
   gridColumnStart: string;
   gridColumnEnd: string;
   leftHandle: boolean;
@@ -16,7 +16,7 @@ const Resizeable = (props: ResizeableProps) => {
     children,
     onRightResize,
     onLeftResize,
-    slot,
+    slotIndex,
     gridColumnStart,
     gridColumnEnd,
     leftHandle,
@@ -35,8 +35,8 @@ const Resizeable = (props: ResizeableProps) => {
           left="0"
           width="6px"
           height="100%"
-          data-index={slot}
-          onMouseDown={e => onLeftResize && onLeftResize(e, slot)}
+          data-index={slotIndex}
+          onMouseDown={e => onLeftResize && onLeftResize(e, slotIndex)}
           css={{
             cursor: 'w-resize',
             '&:hover': {
@@ -53,8 +53,8 @@ const Resizeable = (props: ResizeableProps) => {
           right="0"
           width="6px"
           height="100%"
-          data-index={slot}
-          onMouseDown={e => onRightResize && onRightResize(e, slot)}
+          // data-index={slot}
+          onMouseDown={e => onRightResize && onRightResize(e, slotIndex)}
           css={{
             cursor: 'e-resize',
             '&:hover': {
