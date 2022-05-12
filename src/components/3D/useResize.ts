@@ -1,5 +1,6 @@
 import { MutableRefObject, useState, useCallback } from 'react';
 
+// Each slot is 100px or 4 units(4x25)
 const UNIT = 25;
 const calculateMoveUnits = (offsetX: number) => Math.floor(offsetX / UNIT);
 
