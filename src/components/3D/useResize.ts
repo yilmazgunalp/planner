@@ -26,17 +26,18 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
         targetsDataset?.index && (+targetsDataset.index > initialSlot);
       // TODO if index is not present will be false which is not quite right -- pun intended
       setToLeftOrToRight(isToRight ? 'right' : 'left');
-
       // 2.calculate move
       const move = isToRight
         ? calculateMoveUnits(offsetX)
         : Math.floor(
             -((<HTMLDivElement>e.target).offsetWidth / UNIT - calculateMoveUnits(offsetX) - 1)
           );
+          console.log((<HTMLDivElement>e.target).offsetWidth, offsetX, move, e.target)
+
       setMove(move);
       setSlot(targetsDataset.index ?? undefined);
-      // 3.stop mouse event at limit -- -3 left limit minimum time length for a filled slot
-      if ((isToRight && targetsDataset.filled === 'true') || move === -3) {
+      // 3.stop mouse event at limit 
+      if ((isToRight && targetsDataset.filled === 'true')) {
         onMouseUp();
       }
     };
@@ -53,20 +54,22 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
     document.addEventListener('mouseup', onMouseUp);
   }, []);
 
-  const leftHandler = useCallback((e: React.MouseEvent, slot: number) => {
+  const leftHandler = useCallback((e: React.MouseEvent, initialSlot: number) => {
     e.preventDefault();
     e.stopPropagation();
     setleftOrRightHandler('left-handler');
-    setInitalSlot(slot);
+    setInitalSlot(initialSlot);
     const onMouseMove = (e: MouseEvent) => {
       // 1.calculate leftOrRight
+      const targetsDataset = (<HTMLDivElement>e.target).dataset;
+      const offsetX = e.offsetX;
       const isToLeft =
       // This is causing issue???
-      (<HTMLDivElement>e.target).dataset.index !== undefined && (+((<HTMLDivElement>e.target).dataset.index ?? 0) < slot);
+      targetsDataset.index !== undefined && (+targetsDataset.index < initialSlot);
       // TODO if index is not present will be false which is not quite right
       setToLeftOrToRight(isToLeft ? 'left' : 'right');
 
-      const leftMove =
+      const leftMove = //hmmm??
       (<HTMLDivElement>e.target).offsetWidth > 25
           ? Math.floor(
             (<HTMLDivElement>e.target).offsetWidth / 25 - Math.floor(e.offsetX / 25) - 1
@@ -77,15 +80,14 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
           : 0;
 
       // 2.calculate move
-      const move = isToLeft ? leftMove : -Math.floor(e.offsetX / 25);
-
+      const move = isToLeft ?  (<HTMLDivElement>e.target).offsetWidth / 25 - Math.floor(e.offsetX / 25) - 1 : -calculateMoveUnits(offsetX);
+      console.log(isToLeft,(<HTMLDivElement>e.target).offsetWidth, offsetX, move)
       setMove(move);
-      setSlot((<HTMLDivElement>e.target).dataset.index);
-
+      setSlot(targetsDataset.index ?? undefined);
       // 3.stop mouse event at limit
       if (
-        (isToLeft && (<HTMLDivElement>e.target).dataset.filled === 'true') ||
-        ((<HTMLDivElement>e.target).dataset.filled === 'true' && (<HTMLDivElement>e.target).offsetWidth === 25)
+        (isToLeft && targetsDataset.filled === 'true') ||
+        ((<HTMLDivElement>e.target).dataset.filled === 'true' && (<HTMLDivElement>e.target).offsetWidth === 25) //hmmm??
       ) {
         onMouseUp();
       }

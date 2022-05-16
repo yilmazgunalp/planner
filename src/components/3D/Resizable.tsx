@@ -35,7 +35,7 @@ const Resizeable = (props: ResizeableProps) => {
           left="0"
           width="6px"
           height="100%"
-          data-index={slotIndex}
+          // data-index={slotIndex}
           onMouseDown={e => onLeftResize && onLeftResize(e, slotIndex)}
           css={{
             cursor: 'w-resize',
