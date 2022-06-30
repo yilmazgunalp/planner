@@ -53,7 +53,7 @@ export const Day = ({ storageKey }: Props) => {
 
   const ref = useRef<HTMLDivElement>();
   const [
-    move,
+    mousePosition,
     slot,
     rightHandler,
     leftHandler,
@@ -62,6 +62,8 @@ export const Day = ({ storageKey }: Props) => {
     leftOrRightHandler,
     // @ts-ignore
   ] = useResize(ref);
+
+  // console.log(mousePosition)
 
   const handleSubmit = data => {
     if (editSlot) {
@@ -82,11 +84,12 @@ export const Day = ({ storageKey }: Props) => {
   };
 
   useEffect(() => {
-    //Thank you typescript lefttoright might be undefined?? causing bugss
-    if (slot !== undefined && initialSlot !== undefined && leftOrRight !== undefined) {
+    console.log("effect", mousePosition)
+    // Thank you typescript lefttoright might be undefined?? causing bugss
+    if (mousePosition && slot !== undefined && initialSlot !== undefined && leftOrRight !== 'unknown')  {
       setSlots(
         updateSlots(
-          move,
+          mousePosition,
           +slot,
           slots,
           initialSlot,
@@ -95,7 +98,7 @@ export const Day = ({ storageKey }: Props) => {
         )
       );
     }
-  }, [move, slot]);
+  }, [mousePosition, slot]);
 
   useEffect(() => {
     setLocalStorage({ ...plans, [storageKey]: slots });
@@ -104,7 +107,7 @@ export const Day = ({ storageKey }: Props) => {
   useEffect(() => {
     setSlots(plans[storageKey] || defaultSlots);
   }, [storageKey]);
-
+  // console.log("SLOTS", slots)
   return (
     <Stack flexGrow={1}>
       <TimeLabels slots={slots}></TimeLabels>
@@ -181,10 +184,10 @@ const refillWithSlots = (start: number, limit: number): Slot[] => {
   return result;
 };
 
-const getBeginingAndEndingForRightHandler = (
+const getBeginingAndEndingAndNextFilledForRightHandler = (
   slots: Slot[],
   slot: number
-): Slot[][] => {
+): [Slot[],Slot[], number] => {
   const begining = slots.slice(0, slot);
   const nextFilledItemIndex = slots.slice(slot + 1).findIndex(e => e.filled);
   const ending =
@@ -192,52 +195,66 @@ const getBeginingAndEndingForRightHandler = (
       ? []
       : slots.slice(nextFilledItemIndex + slot + 1);
 
-  return [begining, ending];
+  return [begining, ending, nextFilledItemIndex];
 };
 
+// Each slot is 100px or 4 units(4x25)
+const UNIT = 24; //using 24 as calculation otherwise last 25px doesn't add up to 1 unit of move
+const calculateMoveUnits = (offsetX: number) => Math.floor(offsetX / UNIT);
+
 const updateSlots = (
-  move: number,
+  offsetX: number,
   slot: number,
   slots: Slot[],
   initialSlot: number,
-  leftOrRight: 'left' | 'right',
+  leftOrRight: 'left' | 'right' | 'unknown',
   leftOrRightHandler
 ): Slot[] => {
   if (leftOrRightHandler === 'right-handler') {
+    // console.log("RIGHTH-HANDLER", "initalslot:==>", initialSlot)
+    const move = calculateMoveUnits(offsetX)
+    console.log("move", move)
     if (move !== 0) {
-      // get the begining and ending
-      const [begining, ending] = getBeginingAndEndingForRightHandler(
+      // 1. get the begining and ending
+      const [begining, ending, nextFilledItemIndex] = getBeginingAndEndingAndNextFilledForRightHandler(
         slots,
         initialSlot
       );
 
-      // get the next full slot's index
-      const nextFilledItemIndex = slots
-        .slice(initialSlot + 1)
-        .findIndex(e => e.filled);
+      // // get the next full slot's index
+      // const nextFilledItemIndex = slots
+      //   .slice(initialSlot + 1)
+      //   .findIndex(e => e.filled);
 
-      // limit to resize
+      // 2. limit to resize
       // TODO move to helper function
       let limit;
+      // console.log("AA", nextFilledItemIndex, slots, slot)
       if (leftOrRight === 'right') {
+        if(nextFilledItemIndex !== -1 && (initialSlot + nextFilledItemIndex +1 < slot) || !!slots[slot]?.filled) {
+          return slots
+        };
         limit =
           nextFilledItemIndex === -1
             ? 25
-            : +slots[nextFilledItemIndex + slot].gridColumnStart;
+            : +slots[nextFilledItemIndex + initialSlot + 1]?.gridColumnStart ?? 'unknown';
       } else {
         limit =
           nextFilledItemIndex === -1
             ? 25
             : +slots[nextFilledItemIndex + slot + 1].gridColumnStart;
       }
-      // calculate the new end
+      // console.log("limit", limit)
+      // if limit can't be calculated return slots as they are
+      if(limit === 'unknown') return slots;
+      // 3. calculate the new end
       const result: Slot[] = [];
       const resized = slots[initialSlot];
       const newEnd = move + +resized.gridColumnEnd;
       const end = newEnd <= limit ? newEnd : undefined;
-      // end might be undefined because of crazy mouse events.
-      // if so just dont do anything
+     
       if (end) {
+         // 4. resize the slot and refill space between the resized slot and the limit
         const resizedSlot = resizeSlot(
           +resized.gridColumnStart,
           end,
@@ -245,12 +262,17 @@ const updateSlots = (
         );
         result.push(resizedSlot);
         const refilledSlots = refillWithSlots(end, limit);
+        // 5. concat all the bits together to make up the slots
         return begining.concat(result, refilledSlots, ending);
       } else {
+         // end might be undefined because of crazy mouse events.
+      // if so just dont do anything
         return slots;
       }
     }
   } else {
+    console.log("LEFT-HANDLER")
+
     if (move !== 0) {
       const reversed = slots.reduceRight<Slot[]>((acc, cur) => {
         acc.push(cur);

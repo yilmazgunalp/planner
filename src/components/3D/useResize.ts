@@ -5,10 +5,10 @@ const UNIT = 25;
 const calculateMoveUnits = (offsetX: number) => Math.floor(offsetX / UNIT);
 
 export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
-  const [move, setMove] = useState(0);
+  const [offset, setOffset] = useState(0);
   const [slot, setSlot] = useState<string>();
   const [initialSlot, setInitalSlot] = useState<number>();
-  const [toleftOrToRight, setToLeftOrToRight] = useState<'left' | 'right'>();
+  const [toleftOrToRight, setToLeftOrToRight] = useState<'left' | 'right' | 'unknown'>('unknown');
   const [leftOrRightHandler, setleftOrRightHandler] = useState<
     'left-handler' | 'right-handler'
   >();
@@ -22,27 +22,34 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
       // 1.calculate leftOrRight
       const targetsDataset = (<HTMLDivElement>e.target).dataset;
       const offsetX = e.offsetX;
-      const isToRight =
-        targetsDataset?.index && (+targetsDataset.index > initialSlot);
-      // TODO if index is not present will be false which is not quite right -- pun intended
-      setToLeftOrToRight(isToRight ? 'right' : 'left');
-      // 2.calculate move
-      const move = isToRight
-        ? calculateMoveUnits(offsetX)
-        : Math.floor(
-            -((<HTMLDivElement>e.target).offsetWidth / UNIT - calculateMoveUnits(offsetX) - 1)
-          );
-          console.log((<HTMLDivElement>e.target).offsetWidth, offsetX, move, e.target)
-
-      setMove(move);
-      setSlot(targetsDataset.index ?? undefined);
-      // 3.stop mouse event at limit 
-      if ((isToRight && targetsDataset.filled === 'true')) {
+      let leftRight;
+      if(targetsDataset?.index !== undefined) {
+        leftRight = (+targetsDataset.index > initialSlot) ? 'right' : 'left'
+      } else {
+        leftRight = 'unknown';
+      }
+      setToLeftOrToRight(leftRight);
+      // console.log(leftRight, e.target, targetsDataset)
+     // 2.stop mouse event at filled slot or if mouse moves out of ref container
+      if (leftRight === 'unknown' || (leftRight === 'right' && !!targetsDataset.filled)) { 
+      //  console.log(leftRight, e.target)
+      // set offset as zero to make sure no move is calculated.
+       setOffset(0)
         onMouseUp();
       }
+      setOffset(offsetX);
+      setSlot(targetsDataset.index ?? undefined);
+       
+      // // 2.calculate move
+      // const move = isToRight
+      //   ? calculateMoveUnits(offsetX)
+      //   : Math.floor(
+      //       -((<HTMLDivElement>e.target).offsetWidth / UNIT - calculateMoveUnits(offsetX) - 1)
+      //     );
+      //     console.log((<HTMLDivElement>e.target).offsetWidth, offsetX, move, e.target)
+     
     };
     function onMouseUp() {
-      e.stopPropagation();
       if (ref) {
         ref.current?.removeEventListener('mousemove', onMouseMove);
         ref.current?.removeEventListener('mouseup', onMouseUp);
@@ -82,7 +89,7 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
       // 2.calculate move
       const move = isToLeft ?  (<HTMLDivElement>e.target).offsetWidth / 25 - Math.floor(e.offsetX / 25) - 1 : -calculateMoveUnits(offsetX);
       console.log(isToLeft,(<HTMLDivElement>e.target).offsetWidth, offsetX, move)
-      setMove(move);
+      // setMove(move);
       setSlot(targetsDataset.index ?? undefined);
       // 3.stop mouse event at limit
       if (
@@ -106,7 +113,7 @@ export const useResize = (ref: MutableRefObject<HTMLDivElement>) => {
   }, []);
 
   return [
-    move,
+    offset,
     slot,
     rightHandler,
     leftHandler,
