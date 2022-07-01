@@ -7,3 +7,4 @@ Using handles that are absolutle positioned. Mouse target element becomes this h
 ### Gotchas
 
 - You need that slotindex+1 on Resize handle otherwise **leftOrRight** becomes unknown
+- Sometimes you need to implement the logic in updateSlots in Day.tsx as well as in useResize because mouse events gets sent to day after mouseUP is called in useResize.
