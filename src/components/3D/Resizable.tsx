@@ -39,7 +39,7 @@ const Resizeable = (props: ResizeableProps) => {
           right="0"
           width="6px"
           height="100%"
-          // data-index={slotIndex} //I think this is not needed
+          data-index={slotIndex + 1} //This is key to success
           onMouseDown={e => onRightResize && onRightResize(e, slotIndex)}
           css={{
             cursor: 'e-resize',
