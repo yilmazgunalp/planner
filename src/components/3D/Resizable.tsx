@@ -1,5 +1,6 @@
 import { Box, Flex } from '@chakra-ui/layout';
 import React, { MouseEvent, ReactNode } from 'react';
+import { ResizeHandle } from './ResizeHandle';
 
 type ResizeableProps = {
   children: ReactNode;
@@ -28,23 +29,8 @@ const Resizeable = (props: ResizeableProps) => {
       position="relative"
       gridColumn={`${gridColumnStart} / ${gridColumnEnd}`}
     >
-      {leftHandle && (
-        <Box
-          position="absolute"
-          background="none"
-          left="0"
-          width="6px"
-          height="100%"
-          // data-index={slotIndex}
-          onMouseDown={e => onLeftResize && onLeftResize(e, slotIndex)}
-          css={{
-            cursor: 'w-resize',
-            '&:hover': {
-              background: 'blue',
-            },
-          }}
-        />
-      )}
+      {leftHandle && <ResizeHandle onLeftResize={onLeftResize} slotIndex={slotIndex}/>
+        }
       {children}
       {rightHandle && (
         <Box
@@ -53,7 +39,7 @@ const Resizeable = (props: ResizeableProps) => {
           right="0"
           width="6px"
           height="100%"
-          // data-index={slot}
+          // data-index={slotIndex} //I think this is not needed
           onMouseDown={e => onRightResize && onRightResize(e, slotIndex)}
           css={{
             cursor: 'e-resize',
